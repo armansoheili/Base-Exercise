@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
@@ -16,7 +16,7 @@ contract AddressBook is Ownable {
 
     error ContactNotFound(uint id);
 
-    // Pass the `initialOwner` to the `Ownable` constructor
+    // Pass initialOwner to the Ownable constructor
     constructor(address initialOwner) Ownable(initialOwner) {}
 
     function addContact(
