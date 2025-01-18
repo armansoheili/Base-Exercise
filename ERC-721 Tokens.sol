@@ -16,58 +16,75 @@ contract HaikuNFT is ERC721 {
 
     Haiku[] public haikus;
     mapping(address => uint256[]) public sharedHaikus;
-    Counters.Counter private _haikuCounter;
-    mapping(bytes32 => bool) private _usedHaikuLines;
+    Counters.Counter public counter; // Public for easier debugging
+
+    mapping(string => bool) private usedLines; // Tracks used lines for uniqueness
 
     error HaikuNotUnique();
     error NotYourHaiku(uint256 haikuId);
     error NoHaikusShared();
 
     constructor() ERC721("HaikuNFT", "HAIKU") {
-        _haikuCounter.increment(); // Start the counter at 1
+        counter.increment(); // Start at 1 for 1-based IDs
     }
 
-    function mintHaiku(string calldata line1, string calldata line2, string calldata line3) external {
-        bytes32 line1Hash = keccak256(abi.encodePacked(line1));
-        bytes32 line2Hash = keccak256(abi.encodePacked(line2));
-        bytes32 line3Hash = keccak256(abi.encodePacked(line3));
-
-        if (_usedHaikuLines[line1Hash] || _usedHaikuLines[line2Hash] || _usedHaikuLines[line3Hash]) {
+    function mintHaiku(
+        string memory _line1,
+        string memory _line2,
+        string memory _line3
+    ) external {
+        // Ensure lines are unique
+        if (usedLines[_line1] || usedLines[_line2] || usedLines[_line3]) {
             revert HaikuNotUnique();
         }
 
-        _usedHaikuLines[line1Hash] = true;
-        _usedHaikuLines[line2Hash] = true;
-        _usedHaikuLines[line3Hash] = true;
+        uint256 newHaikuId = counter.current(); // Get current ID
+        _safeMint(msg.sender, newHaikuId); // Safe mint for compliance
 
-        uint256 newHaikuId = _haikuCounter.current();
-        _haikuCounter.increment();
+        // Push new haiku to the array
+        haikus.push(
+            Haiku({
+                author: msg.sender,
+                line1: _line1,
+                line2: _line2,
+                line3: _line3
+            })
+        );
 
-        haikus.push(Haiku(msg.sender, line1, line2, line3));
-        _mint(msg.sender, newHaikuId);
+        // Mark lines as used
+        usedLines[_line1] = true;
+        usedLines[_line2] = true;
+        usedLines[_line3] = true;
+
+        counter.increment(); // Increment counter
     }
 
-    function shareHaiku(address _to, uint256 _haikuId) public {
+    function shareHaiku(uint256 _haikuId, address _to) public {
         if (ownerOf(_haikuId) != msg.sender) {
             revert NotYourHaiku(_haikuId);
         }
 
+        // Share the haiku with the recipient
         sharedHaikus[_to].push(_haikuId);
     }
 
     function getMySharedHaikus() public view returns (Haiku[] memory) {
         uint256[] memory sharedIds = sharedHaikus[msg.sender];
-        uint256 count = sharedIds.length;
 
-        if (count == 0) {
+        if (sharedIds.length == 0) {
             revert NoHaikusShared();
         }
 
-        Haiku[] memory result = new Haiku[](count);
-        for (uint256 i = 0; i < count; i++) {
-            result[i] = haikus[sharedIds[i] - 1]; // IDs are 1-based, adjust for array indexing
+        Haiku[] memory mySharedHaikus = new Haiku[](sharedIds.length);
+
+        for (uint256 i = 0; i < sharedIds.length; i++) {
+            // Ensure valid indexing
+            uint256 haikuId = sharedIds[i];
+            require(haikuId > 0 && haikuId <= haikus.length, "Invalid haiku ID");
+
+            mySharedHaikus[i] = haikus[haikuId - 1];
         }
 
-        return result;
+        return mySharedHaikus;
     }
 }
