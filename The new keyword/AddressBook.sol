@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+contract AddressBook {
+    address public owner;
 
-contract AddressBook is Ownable {
     struct Contact {
         uint id;
         string firstName;
@@ -16,8 +16,14 @@ contract AddressBook is Ownable {
 
     error ContactNotFound(uint id);
 
-    // Pass msg.sender explicitly to the Ownable constructor
-    constructor() Ownable(msg.sender) {}
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Caller is not the owner");
+        _;
+    }
+
+    constructor(address _owner) {
+        owner = _owner;
+    }
 
     function addContact(
         uint _id,
