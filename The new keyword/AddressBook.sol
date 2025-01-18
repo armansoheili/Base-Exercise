@@ -1,4 +1,3 @@
-
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
@@ -16,6 +15,9 @@ contract AddressBook is Ownable {
     uint[] private contactIds;
 
     error ContactNotFound(uint id);
+
+    // Pass msg.sender explicitly to the Ownable constructor
+    constructor() Ownable(msg.sender) {}
 
     function addContact(
         uint _id,
