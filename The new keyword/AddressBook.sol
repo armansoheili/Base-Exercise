@@ -16,7 +16,8 @@ contract AddressBook is Ownable {
 
     error ContactNotFound(uint id);
 
-    constructor() Ownable() {}
+    // Pass the `initialOwner` to the `Ownable` constructor
+    constructor(address initialOwner) Ownable(initialOwner) {}
 
     function addContact(
         string memory _firstName,
