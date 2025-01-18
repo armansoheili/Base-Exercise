@@ -4,9 +4,9 @@ pragma solidity ^0.8.0;
 contract EmployeeStorage {
     // State variables
     uint16 private shares; // Optimized for storage (max value 65535, sufficient for shares < 5000)
-    string public name;
     uint32 private salary; // Optimized for storage (max value 1,000,000 fits in 32 bits)
     uint256 public idNumber;
+    string public name; // Dynamically-sized variable placed last for packing
 
     // Custom error
     error TooManyShares(uint256 newTotalShares);
@@ -14,9 +14,9 @@ contract EmployeeStorage {
     // Constructor
     constructor() {
         shares = 1000;
-        name = "Pat";
         salary = 50000;
         idNumber = 112358132134;
+        name = "Pat";
     }
 
     // View functions
