@@ -11,7 +11,7 @@ contract FavoriteRecords {
 
     // Constructor to initialize approved records
     constructor() {
-        string[10] memory records = [
+        string[9] memory records = [
             "Thriller",
             "Back in Black",
             "The Bodyguard",
@@ -20,8 +20,7 @@ contract FavoriteRecords {
             "Hotel California",
             "Come On Over",
             "Rumours",
-            "Saturday Night Fever",
-            "Get Approved Records"
+            "Saturday Night Fever"
         ];
 
         for (uint i = 0; i < records.length; i++) {
